@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xmlns:xlink="http://www.w3.org/1999/xlink">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script   src="https://code.jquery.com/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../static/css/customized.css">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+
+    .node circle {
+      cursor: pointer;
+      stroke: #313742;
+      stroke-width: 1px;
+    }
+
+    .node text {
+      font: 12px sans-serif;
+      pointer-events: visible;
+      text-anchor: middle;
+    }
+
+    line.link {
+      fill: none;
+      stroke: #4b4b51;
+      stroke-width: 1.5px;
+    }
+
+    </style>
+  </head>
+  <body>
+
+    <nav class = 'navbar navbar-default navbar-inverse bar-fixed-top'>
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/Home" class='navbar-brand'>Home</a>
+        </div>
+
+        <ul class="nav navbar-nav">
+          <li> <a href="/Howitworks">How it works</a></li>
+          <li> <a href="/Aboutme">About me</a></li>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="https://www.linkedin.com/in/unguyen-psu-ou/">
+            <img class='icon'src="../static/Linkedin.png" alt="">
+          </a></li>
+          <li><a href="https://github.com/utn100">
+            <img class='icon' src="../static/Github.png" alt="">
+          </a></li>
+          <li><a href="mailto:unguyen.psu.edu@gmail.com">
+            <img class='icon' src="../static/Gmail.jpeg" alt="">
+          </a></li>
+        </ul>
+      </div>
+
+    </nav>
+
+
+<div class = "container">
+  <div class="jumbotron">
+    <p id="title">Recommended Products </p>
+    <img id="logo" src="../static/Logo.png">
+    <div id="form">
+      <h4>Pick your option!</h4>
+
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#skintype">
+    By your skintype
+  </button>
+
+  <!-- Modal -->
+  <div class="modal fade" id="skintype" tabindex="-1" role="dialog" aria-labelledby="skintypeTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="skintypeTitle">Products for your skintype</h3>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" >
+          {% if recommended1 == [] %}
+            <p>Can't find your skintype</p>
+          {% endif %}
+
+          {% if recommended1 != [] %}
+            <font color="red" size="5"> You have {{skintype}} skin! </font>
+            <div class="container" id="skintype-modal">
+
+              </div>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script id="recommended1">
+
+    var width = 500,
+        height = 500,
+        root;
+
+    var force = d3.layout.force()
+        .linkDistance(100)
+        .charge(-270)
+        .gravity(.03)
+        .size([width, height])
+        .on("tick", tick);
+
+    var svg = d3.select("#skintype-modal").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    var link = svg.selectAll(".link"),
+        node = svg.selectAll(".node");
+
+
+    var treeData1 = {{recommended1|safe}};
+          root = treeData1[0];
+          update();
+
+    function update() {
+      var nodes = flatten(root),
+          links = d3.layout.tree().links(nodes);
+
+      // Restart the force layout.
+      force
+          .nodes(nodes)
+          .links(links)
+          .start();
+
+      // Update links.
+      link = link.data(links, function(d) { return d.target.id; });
+
+      link.exit().remove();
+
+      link.enter().insert("line", ".node")
+          .attr("class", "link");
+
+      // Update nodes.
+      node = node.data(nodes, function(d) { return d.id; });
+
+      node.exit().remove();
+
+      var nodeEnter = node.enter().append("g")
+          .attr("class", "node")
+          .on("click", click)
+          .call(force.drag);
+
+      nodeEnter.append("circle")
+          .attr("r", function(d) { return Math.sqrt(d.size) / 6|| 6; });
+
+      //nodeEnter.append("text")
+          //.attr("dy", ".35em")
+        //  .text(function(d) { return d.name; });
+
+        nodeEnter.each(function(d){
+           var thisNode = d3.select(this);
+           if (!d.children) {
+               thisNode.append("svg:a")
+                   .attr("xlink:href", function(d) { return d.url; })
+                   .append("text")
+                       .attr("x", 8)
+                       .attr("dy", 3)
+                       .attr("text-anchor", "start")
+                       .text(function(d) { return d.name; });
+           } else {
+               thisNode.append("text")
+                   .attr("x", -8)
+                   .attr("dy", 3)
+                   .attr("text-anchor", "end")
+                   .text(function(d) { return d.name; });
+           }
+       });
+
+
+      node.select("circle")
+          .style("fill", color);
+    }
+
+    function tick() {
+      link.attr("x1", function(d) { return d.source.x; })
+          .attr("y1", function(d) { return d.source.y; })
+          .attr("x2", function(d) { return d.target.x; })
+          .attr("y2", function(d) { return d.target.y; });
+
+      node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    }
+
+    function color(d) {
+      return d._children ? "#70a2ff" // collapsed package
+          : d.children ? "#5691ef" // expanded package
+          : "#ffa470"; // leaf node
+    }
+
+    // Toggle children on click.
+    function click(d) {
+      if (d3.event.defaultPrevented) return; // ignore drag
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
+      }
+      update();
+    }
+
+    // Returns a list of all nodes under the root.
+    function flatten(root) {
+      var nodes = [], i = 0;
+
+      function recurse(node) {
+        if (node.children) node.children.forEach(recurse);
+        if (!node.id) node.id = ++i;
+        nodes.push(node);
+      }
+
+      recurse(root);
+      return nodes;
+    }
+  </script>
+
+
+
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#product">
+    By your favorite products
+  </button>
+
+  <!-- Modal -->
+  <div class="modal fade" id="product" tabindex="-1" role="dialog" aria-labelledby="productTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="productTitle">Products similar to your favorite</h3>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          {% if recommended2 == [] %}
+            <font color="red" size="5">Can't find your product history. Try these popular products! </font>
+            <div class="container">
+              {% for rec in popular %}
+              <div>
+                <a href="{{rec['url']}}">
+                  <img id="im0" src="../static/product_images/{{rec['image_file']}}" height="100"/>
+                </a>
+                <p>{{ rec['name'] }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% if recommended2 != [] %}
+            <font color="red" size="5"> Your favorite product is {{product}}! </font>
+            <div class="container" id="product-modal">
+              {% for rec in recommended2 %}
+              <div class="column">
+                <a href="{{rec['url']}}">
+                  <img id="im0" src="../static/product_images/{{rec['image_file']}}" height="100"/>
+                </a>
+                <p>{{ rec['name'] }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+</body>
+</html>

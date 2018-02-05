@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="../static/css/customized.css">
+    <!-- Bootstrap core CSS -->
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+
+  </head>
+  <body>
+
+    <nav class = 'navbar navbar-default navbar-inverse bar-fixed-top'>
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/Home" class='navbar-brand'>Home</a>
+        </div>
+
+        <ul class="nav navbar-nav">
+          <li> <a href="/Howitworks">How it works</a></li>
+          <li> <a href="/Aboutme">About me</a></li>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="https://www.linkedin.com/in/unguyen-psu-ou/">
+            <img class='icon'src="../static/Linkedin.png" alt="">
+          </a></li>
+          <li><a href="https://github.com/utn100">
+            <img class='icon' src="../static/Github.png" alt="">
+          </a></li>
+          <li><a href="mailto:unguyen.psu.edu@gmail.com">
+            <img class='icon' src="../static/Gmail.jpeg" alt="">
+          </a></li>
+        </ul>
+      </div>
+
+    </nav>
+
+
+    <div class="container">
+      <div class="jumbotron">
+        <p id="title">Personalized skincare products recommender for redditors </p>
+        <img id="logo" src="../static/Logo.png">
+
+        <form  id="form" action="/output" method="GET">
+          <div class="form-group">
+            <label id = 'label' for="username">Input Reddit Username:</label>
+            <input type="text" id="username" name='username' placeholder="e.g. ">
+            <button type="submit" class="btn btn-light"><img id="reddit" src="../static/reddit_icon.png" alt="">
+            </button>
+            <p id="input">Examples: M0j0fl0j0, lomeets, Ttoki</p>
+          </div>
+
+          {% if error %}
+          <font color="red" size="3">{{ error }}</font>
+          {% endif %}
+
+        </form>
+
+
+    </div>
+  </div>
+
+
+  </body>
+</html>
